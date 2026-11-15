@@ -216,12 +216,43 @@ class ConversationalMemoryService extends ChangeNotifier {
     await clearAllHistory();
   }
 
-  /// Builds context string of remembered facts to inject into AI system prompt.
-  String buildMemoryContext() {
+  /// Builds a relevance-ranked context string without changing stored memory.
+  String buildMemoryContext([String? query]) {
     if (_facts.isEmpty) return '';
+
+    final stopWords = <String>{
+      'about', 'after', 'again', 'also', 'and', 'are', 'can', 'could',
+      'did', 'does', 'for', 'from', 'have', 'help', 'how', 'into',
+      'just', 'like', 'make', 'more', 'need', 'please', 'that', 'the',
+      'their', 'them', 'then', 'there', 'this', 'what', 'when', 'where',
+      'which', 'will', 'with', 'would', 'you', 'your',
+    };
+
+    Set<String> words(String value) => value
+        .toLowerCase()
+        .split(RegExp(r'[^a-z0-9]+'))
+        .where((word) => word.length > 2 && !stopWords.contains(word))
+        .toSet();
+
+    final queryWords = words(query ?? '');
+    final ranked = _facts.indexed.map((entry) {
+      final index = entry.$1;
+      final fact = entry.$2;
+      final factWords = words(fact.fact);
+      final score = queryWords.intersection(factWords).length;
+      return (fact: fact, score: score, index: index);
+    }).toList();
+
+    if (queryWords.isNotEmpty && ranked.any((item) => item.score > 0)) {
+      ranked.sort((a, b) {
+        final relevance = b.score.compareTo(a.score);
+        return relevance != 0 ? relevance : a.index.compareTo(b.index);
+      });
+    }
+
     final buffer = StringBuffer('USER MEMORY & PREFERENCES:\n');
-    for (final f in _facts.take(12)) {
-      buffer.writeln('- ${f.fact}');
+    for (final item in ranked.take(12)) {
+      buffer.writeln('- ${item.fact.fact}');
     }
     return buffer.toString().trim();
   }

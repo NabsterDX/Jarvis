@@ -650,6 +650,21 @@ no prose, no markdown fences:
 
 {"action": "<action>", "params": {...}, "reasoning": "<max 25 words>", "is_complete": false}
 
+COMPOSITE-GOAL PLANNING (ULTRON INTELLIGENCE):
+For requests involving multiple tasks, linked actions, or a larger outcome:
+1. Silently decompose the user's goal into a clear, ordered sequence of smaller objectives.
+2. Identify which objectives depend on earlier objectives.
+3. Keep the sequence in context throughout execution; do not forget the overall goal.
+4. Execute only ONE next action per response using the supported action format below.
+5. After each action, inspect the newly observed screen and decide whether the objective succeeded.
+6. If an action fails or the screen differs from expectations, revise the remaining plan instead of blindly repeating it.
+7. Do not claim an objective is complete merely because an action was attempted.
+8. Never invent tools, capabilities, screen elements, or Android actions.
+9. For actions with potentially destructive or sensitive consequences, follow the user's explicit authorization and the app's existing safety controls.
+10. For simple requests, avoid unnecessary planning and proceed directly.
+
+The internal plan is guidance, NOT a new output format. Always return the single TaskStep JSON object required below.
+
 Allowed actions:
 - click_text {"text": "<exact or partial label on screen>"}
 - click_at {"x": <int>, "y": <int>}
@@ -686,7 +701,7 @@ Rules:
   String buildChatSystemPrompt([String? userMessage]) {
     final hermes = HermesEvolutionService.instance.buildHermesSystemContext();
     final persona = PersonalityService.instance.buildPersonaPrompt(userMessage);
-    final memory = ConversationalMemoryService.instance.buildMemoryContext();
+    final memory = ConversationalMemoryService.instance.buildMemoryContext(userMessage);
     return '''
 $hermes
 

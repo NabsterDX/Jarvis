@@ -22,6 +22,9 @@ import '../../widgets/liquid_glass_mode_switcher.dart';
 import '../../widgets/status_chip.dart';
 import '../sessions/session_detail_screen.dart';
 import '../settings/settings_screen.dart';
+import '../history/task_history_screen.dart';
+import '../settings/jarvis_settings_screen.dart';
+import '../memory/memory_screen.dart';
 
 /// Main screen: live task transcript, task input with voice, overlay toggle.
 class HomeScreen extends StatefulWidget {
@@ -281,6 +284,60 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       _inputBar(theme),
                     ],
                   ),
+          ),
+        ],
+      ),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: 0,
+        onDestinationSelected: (index) {
+          Widget? destination;
+          switch (index) {
+            case 0:
+              return;
+            case 1:
+              destination = const JarvisSettingsScreen();
+              break;
+            case 2:
+              destination = const TaskHistoryScreen();
+              break;
+            case 3:
+              destination = const MemoryScreen();
+              break;
+            case 4:
+              destination = const SettingsScreen();
+              break;
+          }
+          if (destination != null) {
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => destination!),
+            );
+          }
+        },
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.home_outlined),
+            selectedIcon: Icon(Icons.home_rounded),
+            label: 'Home',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.psychology_outlined),
+            selectedIcon: Icon(Icons.psychology),
+            label: 'Intelligence',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.task_alt_outlined),
+            selectedIcon: Icon(Icons.task_alt),
+            label: 'Tasks',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.memory_outlined),
+            selectedIcon: Icon(Icons.memory),
+            label: 'Memory',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.settings_outlined),
+            selectedIcon: Icon(Icons.settings),
+            label: 'Settings',
           ),
         ],
       ),
