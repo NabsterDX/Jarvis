@@ -75,6 +75,28 @@ void main() {
       expect(memory.facts.isEmpty, isTrue);
       expect(memory.persistedHistory.isEmpty, isTrue);
     });
+    test('Ranks memories relevant to the current agent goal first', () async {
+      final memory = ConversationalMemoryService.instance;
+      await memory.wipeAll();
+
+      await memory.addFact(
+        'User enjoys classical music',
+        category: 'preference',
+      );
+      await memory.addFact(
+        'User prefers calendar meetings scheduled in the morning',
+        category: 'habit',
+      );
+
+      final context = memory.buildMemoryContext('organise calendar meetings');
+
+      expect(
+        context.indexOf('calendar meetings'),
+        lessThan(context.indexOf('classical music')),
+      );
+
+      await memory.wipeAll();
+    });
   });
 
   group('Feature 2: Personality & Emotional Awareness', () {

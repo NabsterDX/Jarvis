@@ -633,9 +633,9 @@ class AiService {
   }
 
   /// The system prompt that turns a chat model into a UI automation agent.
-  String buildSystemPrompt() {
+  String buildSystemPrompt([String? goal]) {
     final hermes = HermesEvolutionService.instance.buildHermesSystemContext();
-    final memory = ConversationalMemoryService.instance.buildMemoryContext();
+    final memory = ConversationalMemoryService.instance.buildMemoryContext(goal);
     return '''
 $hermes
 
@@ -734,7 +734,7 @@ You cannot directly tap the screen in this mode. If the user asks you to perform
     List<Map<String, String>> history = const [],
   }) {
     final settings = SettingsService.instance;
-    final systemPrompt = buildSystemPrompt();
+    final systemPrompt = buildSystemPrompt(goal);
     final messages = <Map<String, String>>[
       if (settings.useSystemPrompt)
         {'role': 'system', 'content': systemPrompt},
@@ -921,7 +921,7 @@ You cannot directly tap the screen in this mode. If the user asks you to perform
     final settings = SettingsService.instance;
     final hermes = HermesEvolutionService.instance.buildHermesSystemContext();
     final persona = PersonalityService.instance.buildPersonaPrompt(speech);
-    final memory = ConversationalMemoryService.instance.buildMemoryContext();
+    final memory = ConversationalMemoryService.instance.buildMemoryContext(speech);
 
     final systemPrompt = '''
 $hermes
